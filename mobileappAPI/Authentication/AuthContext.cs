@@ -1,38 +1,24 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+using mobileappAPI.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-#nullable disable
-
-namespace mobileappAPI.Models
+namespace mobileappAPI.Authentication
 {
-    public partial class RentCarContext : DbContext
+    public class AuthContext : IdentityDbContext<ApplicationUser>
     {
-        public RentCarContext()
+        public AuthContext(DbContextOptions<AuthContext> options) : base(options)
         {
+
         }
-
-        public RentCarContext(DbContextOptions<RentCarContext> options)
-            : base(options)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-        }
+            base.OnModelCreating(builder);
 
-        public virtual DbSet<Carro> Carros { get; set; }
-        public virtual DbSet<Categorium> Categoria { get; set; }
-        public virtual DbSet<Marca> Marcas { get; set; }
-        public virtual DbSet<Post> Posts { get; set; }
-        public virtual DbSet<Reservacion> Reservacions { get; set; }
-        public virtual DbSet<TipoReservacion> TipoReservacions { get; set; }
-        public virtual DbSet<Usuario> Usuarios { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Carro>(entity =>
+            builder.Entity<Carro>(entity =>
             {
                 entity.HasKey(e => e.Idcarro)
                     .HasName("PK__Carro__D9C60BA6B1494B17");
@@ -88,7 +74,7 @@ namespace mobileappAPI.Models
                     .HasConstraintName("FK__Carro__IDPropiet__44FF419A");
             });
 
-            modelBuilder.Entity<Categorium>(entity =>
+            builder.Entity<Categorium>(entity =>
             {
                 entity.HasKey(e => e.Idcategoria)
                     .HasName("PK__Categori__70E82E28DC5E70ED");
@@ -101,7 +87,7 @@ namespace mobileappAPI.Models
                     .IsUnicode(false);
             });
 
-            modelBuilder.Entity<Marca>(entity =>
+            builder.Entity<Marca>(entity =>
             {
                 entity.HasKey(e => e.Idmarca)
                     .HasName("PK__Marca__CEC375E7E0BE3AFA");
@@ -117,7 +103,7 @@ namespace mobileappAPI.Models
                     .HasColumnName("Marca");
             });
 
-            modelBuilder.Entity<Post>(entity =>
+            builder.Entity<Post>(entity =>
             {
                 entity.HasKey(e => e.Idpost)
                     .HasName("PK__Post__8B0115BDB10C44CE");
@@ -150,7 +136,7 @@ namespace mobileappAPI.Models
                     .HasConstraintName("FK__Post__IDCarro__48CFD27E");
             });
 
-            modelBuilder.Entity<Reservacion>(entity =>
+            builder.Entity<Reservacion>(entity =>
             {
                 entity.HasKey(e => e.Idreservacion)
                     .HasName("PK__Reservac__E970411B49959C30");
@@ -188,7 +174,7 @@ namespace mobileappAPI.Models
                     .HasConstraintName("FK__Reservaci__IDTip__4F7CD00D");
             });
 
-            modelBuilder.Entity<TipoReservacion>(entity =>
+            builder.Entity<TipoReservacion>(entity =>
             {
                 entity.HasKey(e => e.IdtipoReservacion)
                     .HasName("PK__TipoRese__138344961896CBF2");
@@ -203,7 +189,7 @@ namespace mobileappAPI.Models
                     .IsUnicode(false);
             });
 
-            modelBuilder.Entity<Usuario>(entity =>
+            builder.Entity<Usuario>(entity =>
             {
                 entity.HasKey(e => e.Idusuario)
                     .HasName("PK__Usuario__52311169D789E966");
@@ -239,9 +225,6 @@ namespace mobileappAPI.Models
                     .IsFixedLength(true);
             });
 
-            OnModelCreatingPartial(modelBuilder);
         }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
