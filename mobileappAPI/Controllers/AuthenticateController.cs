@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using mobileappAPI.Models;
 
 namespace mobileappAPI.Controllers
 {
@@ -19,14 +20,16 @@ namespace mobileappAPI.Controllers
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
+        private readonly RentCarContext _context;
         private readonly IConfiguration _configuration;
         
 
-        public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, RentCarContext context)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
             _configuration = configuration;
+            _context = context;
         }
 
         [HttpPost]
@@ -75,15 +78,35 @@ namespace mobileappAPI.Controllers
             var userExists = await userManager.FindByNameAsync(model.Username);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
-
-            ApplicationUser user = new ApplicationUser()
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
-            };
-            var result = await userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+                var usuario = new Usuario() {Nombre = model.Nombre, Apellido = model.Apellido ,Telefono = model.Telefono, Celular = model.Celular};
+                
+                await _context.SaveChangesAsync();
+                var creado = _context.Usuarios.Attach(usuario);
+                ApplicationUser user = new ApplicationUser()
+                {
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    UserName = model.Username,
+                    Usuario = creado.Entity
+
+                };
+                
+                var result = await userManager.CreateAsync(user, model.Password);
+                if (!result.Succeeded)
+                    throw new Exception();
+                await transaction.CommitAsync();
+                
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Some personal details are not valid, check and try again" });
+            }
+
+            
+            
 
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
