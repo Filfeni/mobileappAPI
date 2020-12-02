@@ -20,11 +20,11 @@ namespace mobileappAPI.Controllers
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
-        private readonly RentCarContext _context;
+        private readonly AuthContext _context;
         private readonly IConfiguration _configuration;
-        
 
-        public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, RentCarContext context)
+
+        public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, AuthContext context)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
@@ -81,8 +81,8 @@ namespace mobileappAPI.Controllers
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var usuario = new Usuario() {Nombre = model.Nombre, Apellido = model.Apellido ,Telefono = model.Telefono, Celular = model.Celular};
-                
+                var usuario = new Usuario() { Nombre = model.Nombre, Apellido = model.Apellido, Telefono = model.Telefono };
+
                 await _context.SaveChangesAsync();
                 var creado = _context.Usuarios.Attach(usuario);
                 ApplicationUser user = new ApplicationUser()
@@ -92,12 +92,12 @@ namespace mobileappAPI.Controllers
                     Usuario = creado.Entity
 
                 };
-                
+
                 var result = await userManager.CreateAsync(user, model.Password);
                 if (!result.Succeeded)
                     throw new Exception();
                 await transaction.CommitAsync();
-                
+
             }
             catch (Exception)
             {
@@ -105,8 +105,8 @@ namespace mobileappAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Some personal details are not valid, check and try again" });
             }
 
-            
-            
+
+
 
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }

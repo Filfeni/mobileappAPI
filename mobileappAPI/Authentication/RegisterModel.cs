@@ -22,8 +22,5 @@ namespace mobileappAPI.Authentication
 
         [Required(ErrorMessage = "Phone is required")]
         public string Telefono { get; set; }
-
-        [Required(ErrorMessage = "Mobile Number is required")]
-        public string Celular { get; set; }
     }
 }

@@ -33,7 +33,6 @@ namespace mobileappAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddDbContext<RentCarContext>(options => options.UseSqlServer(Configuration.GetConnectionString("RentCarDB")));
             services.AddDbContext<AuthContext>(options => options.UseSqlServer(Configuration.GetConnectionString("RentCarDB")));
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<AuthContext>()

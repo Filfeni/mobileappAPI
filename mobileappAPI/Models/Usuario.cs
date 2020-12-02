@@ -1,4 +1,5 @@
-﻿using System;
+﻿using mobileappAPI.Authentication;
+using System;
 using System.Collections.Generic;
 
 #nullable disable
@@ -9,6 +10,7 @@ namespace mobileappAPI.Models
     {
         public Usuario()
         {
+            AspNetUsers = new HashSet<AspNetUser>();
             Carros = new HashSet<Carro>();
             Reservacions = new HashSet<Reservacion>();
         }
@@ -17,9 +19,9 @@ namespace mobileappAPI.Models
         public string Nombre { get; set; }
         public string Apellido { get; set; }
         public string Telefono { get; set; }
-        public string Celular { get; set; }
         public DateTime? FechaRegistro { get; set; }
 
+        public virtual ICollection<AspNetUser> AspNetUsers { get; set; }
         public virtual ICollection<Carro> Carros { get; set; }
         public virtual ICollection<Reservacion> Reservacions { get; set; }
     }
