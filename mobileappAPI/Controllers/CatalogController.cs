@@ -24,33 +24,35 @@ namespace mobileappAPI.Controllers
         //_context.Users.Single(u => u.UserName == User.Identity.Name).Usuario.Idusuario)
         // GET: api/Catalogo
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Carro>>> GetCatalog()
+        public async Task<ActionResult<IEnumerable<Post>>> GetCatalog()
         {
-            return await _context.Carros.ToListAsync();
+            return await _context.Posts.ToListAsync();
         }
 
         // GET: api/Catalogo/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Carro>> GetCatalogSpecific(int id)
+        public async Task<ActionResult<Post>> GetCatalogSpecific(int id)
         {
-            var carro = await _context.Carros.FindAsync(id);
+            var posts = await _context.Posts.SingleAsync(x => x.Idcarro == id);
 
-            if (carro == null)
+            if (posts == null)
             {
                 return NotFound();
             }
 
-            return carro;
+            return posts;
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<Carro>>> SearchCatalog([FromQuery] string? filter, [FromQuery] string? marca)
+        public async Task<ActionResult<IEnumerable<Post>>> SearchCatalog([FromQuery] string? filter, [FromQuery] string? marca)
         {
             if (filter == null && marca == null)
             {
-                RedirectToAction("GetCarros");
+                RedirectToAction("GetCatalog");
             }
-            return await _context.Carros.Where(c => c.Modelo.Contains("search") || c.IdmarcaNavigation.Marca1 == marca).ToListAsync();
+            return await _context.Posts.Include(p => p.IdcarroNavigation)
+                .Where(c => c.IdcarroNavigation.Modelo.Contains("search") || c.IdcarroNavigation.IdmarcaNavigation.Marca1 == marca)
+                .ToListAsync();
         }
     }
 }
