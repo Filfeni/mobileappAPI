@@ -41,6 +41,23 @@ namespace mobileappAPI.Controllers
             return myCars;        
         }
 
+        [HttpPost]
+        public async Task<ObjectResult> RegisterCar(Carro car)
+        {
+            try
+            {
+                _context.Carros.Add(car);
+                await _context.SaveChangesAsync();
+                
+            }
+            catch (System.Exception)
+            {
+
+                return BadRequest(new Response() { Status = "Error", Message = "This car could not be created, please try again" });
+            }
+            return Ok(new Response() { Status = "Success", Message = "This car was registered!" });
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Carro>> GetMyCarsSpecific(int id)
         {
@@ -121,6 +138,10 @@ namespace mobileappAPI.Controllers
         public bool MyCarExists(int id)
         {
             return _context.Carros.Any(c => c.Idcarro == id);
+        }
+        public bool BrandExists(string marca)
+        {
+            return _context.Marcas.Any(b => b.Marca1.ToLower() == marca.ToLower());
         }
     }
 }
