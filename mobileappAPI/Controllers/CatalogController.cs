@@ -48,7 +48,7 @@ namespace mobileappAPI.Controllers
         {
             if (filter == null && marca == null)
             {
-                RedirectToAction("GetCatalog");
+                return RedirectToAction("GetCatalog");
             }
             return await _context.Posts.Include(p => p.IdcarroNavigation)
                 .Where(c => c.IdcarroNavigation.Modelo.Contains("search") || c.IdcarroNavigation.IdmarcaNavigation.Marca1 == marca)
