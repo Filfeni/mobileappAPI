@@ -7,7 +7,7 @@ namespace mobileappAPI.Models
 {
     public partial class Reservacion
     {
-        public int Idreservacion { get; set; }
+        public int? Idreservacion { get; set; }
         public int Idcarro { get; set; }
         public int Idcliente { get; set; }
         public int IdtipoReservacion { get; set; }
