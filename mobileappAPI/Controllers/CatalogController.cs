@@ -44,15 +44,42 @@ namespace mobileappAPI.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<Post>>> SearchCatalog([FromQuery] string? filter, [FromQuery] string? marca)
+        public async Task<ActionResult<IEnumerable<Post>>> SearchCatalog([FromQuery] string? search, [FromQuery] string? marca)
         {
-            if (filter == null && marca == null)
-            {
+            if (search == null && marca == null)
                 return RedirectToAction("GetCatalog");
+            
+            if (search == null && marca != null)
+            {
+                return await _context.Posts.Include(p => p.IdcarroNavigation)
+                .Where(c => c.IdcarroNavigation.IdmarcaNavigation.Marca1 == marca)?
+                .ToListAsync();
+            }
+            if (search != null && marca == null)
+            {
+                return await _context.Posts.Include(p => p.IdcarroNavigation)
+                .Where(c => c.IdcarroNavigation.Modelo.Contains(search) || c.IdcarroNavigation.IdmarcaNavigation.Marca1 == marca)
+                .ToListAsync();
             }
             return await _context.Posts.Include(p => p.IdcarroNavigation)
-                .Where(c => c.IdcarroNavigation.Modelo.Contains("search") || c.IdcarroNavigation.IdmarcaNavigation.Marca1 == marca)
+                .Where(c => c.IdcarroNavigation.Modelo.Contains(search) || c.IdcarroNavigation.IdmarcaNavigation.Marca1 == marca)
                 .ToListAsync();
         }
+
+        //[HttpGet("search")]
+        //public async Task<ActionResult<IEnumerable<Post>>> AlternateSearchCatalog([FromQuery] string? search, [FromQuery] string? marca)
+        //{
+        //     var result = await _context.Posts.Include(p => p.IdcarroNavigation)
+        //    .Where(c => c.IdcarroNavigation.IdmarcaNavigation.Marca1 == marca)?
+        //    .Concat(_context.Posts.Include(p => p.IdcarroNavigation)
+        //    .Where(c => c.IdcarroNavigation.Modelo.Contains(search)))?
+        //    .ToListAsync();
+            
+        //    if (result != null)
+        //        return result;
+
+        //    return NotFound();
+        //}
+
     }
 }

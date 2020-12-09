@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -105,10 +106,18 @@ namespace mobileappAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Some personal details are not valid, check and try again" });
             }
 
-
-
-
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
+
+        [HttpGet("get-current-userid")]
+        public ActionResult<int> GetCurrentUserId()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return _context.Users.Single(u => u.UserName == User.Identity.Name).Usuario.Idusuario;
+            }
+            return Unauthorized();
+        }
+
     }
 }
