@@ -33,7 +33,7 @@ namespace mobileappAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Carro>>> GetMyCars()
         {
-            int userid = _context.Users.Single(u => u.UserName == User.Identity.Name).Usuario.Idusuario;
+            int? userid = _context.Users.Include(x => x.Usuario).Single(u => u.NormalizedUserName == User.Identity.Name.ToUpper()).Usuario.Idusuario;
             var myCars = await _context.Carros.Where(x => x.Idpropietario == userid).ToListAsync();
             if (myCars == null)
             {
