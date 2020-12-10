@@ -13,7 +13,6 @@ namespace mobileappAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class ConstController : ControllerBase
     {
         private readonly AuthContext _context;
