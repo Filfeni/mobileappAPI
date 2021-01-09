@@ -292,7 +292,7 @@ namespace mobileappAPI.Authentication
                 entity.HasOne(d => d.IdcarroNavigation)
                     .WithMany(p => p.Reservacions)
                     .HasForeignKey(d => d.Idcarro)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK__Reservaci__Fecha__4D94879B");
 
                 entity.HasOne(d => d.IdclienteNavigation)

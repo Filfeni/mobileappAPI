@@ -106,15 +106,25 @@ namespace mobileappAPI.Controllers
             if (!MyCarExists(id))
                 return NotFound();
 
-            var car = await _context.Carros.FindAsync(id);
-            int userid = _context.Users.Single(u => u.UserName == User.Identity.Name).Usuario.Idusuario;
+            var car = await _context.Carros.Include(x => x.Reservacions).SingleAsync(x => x.Idcarro == id);
+            ApplicationUser user = await _context.Users.Include(x => x.Usuario).SingleAsync(u => u.NormalizedUserName == User.Identity.Name.ToUpper());
+            int userid = user.Usuario.Idusuario;
 
             if (userid != car.Idpropietario)
                 return BadRequest();
 
             try
             {
+                List<DateTime> dates = new List<DateTime>();
+                await _context.Reservacions.Where(x => x.Idcarro == id).ForEachAsync(x =>
+                {
+                    dates.AddRange(EachCalendarDay(x.FechaSalida, x.FechaEntrega));
+                });
+                if (dates.Any(x => x.Date >= DateTime.Now.Date))
+                    return Ok(new Response { Status = "Oops", Message = "This car can't be deleted because it has pending reservations" });
+
                 _context.Carros.Remove(car);
+                
                 await _context.SaveChangesAsync();
 
             }
@@ -125,6 +135,8 @@ namespace mobileappAPI.Controllers
             return Ok(new Response { Status = "Succeded", Message = "This Car was deleted" });
 
         }
+
+        
 
         [HttpGet("{id}/post")]
         public async Task<ActionResult<Post>> GetCarPost(int id)
@@ -228,6 +240,11 @@ namespace mobileappAPI.Controllers
         public bool PostExists(int id)
         {
             return _context.Posts.Any(x => x.Idcarro == id);
+        }
+        private IEnumerable<DateTime> EachCalendarDay(DateTime startDate, DateTime endDate)
+        {
+            for (var date = startDate.Date; date.Date <= endDate.Date; date = date.AddDays(1)) yield
+                        return date;
         }
     }
 }

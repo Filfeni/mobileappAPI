@@ -22,6 +22,7 @@ namespace mobileappAPI.Models
         public string Color { get; set; }
         public string Placa { get; set; }
         public bool Transmision { get; set; }
+        public bool TienePost { get; set; }
 
         public virtual Categorium IdcategoriaNavigation { get; set; }
         public virtual Combustible IdcombustibleNavigation { get; set; }

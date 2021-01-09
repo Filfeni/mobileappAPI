@@ -58,7 +58,7 @@ namespace mobileappAPI.Controllers
                 var token = new JwtSecurityToken(
                     issuer: _configuration["JWT:ValidIssuer"],
                     audience: _configuration["JWT:ValidAudience"],
-                    expires: DateTime.Now.AddHours(3),
+                    expires: DateTime.Now.AddHours(72),
                     claims: authClaims,
                     signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                     );
@@ -108,16 +108,5 @@ namespace mobileappAPI.Controllers
 
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
-
-        [HttpGet("get-current-userid")]
-        public ActionResult<int> GetCurrentUserId()
-        {
-            if (User.Identity.IsAuthenticated)
-            {
-                return _context.Users.Single(u => u.UserName == User.Identity.Name).Usuario.Idusuario;
-            }
-            return Unauthorized();
-        }
-
     }
 }

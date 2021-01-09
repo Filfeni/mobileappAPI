@@ -12,6 +12,7 @@ using mobileappAPI.Models;
 namespace mobileappAPI.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class ConstController : ControllerBase
     {
@@ -106,6 +107,17 @@ namespace mobileappAPI.Controllers
             return tipoReservacion;
         }
 
+        [HttpGet("get-current-userid")]
+        public async Task<ActionResult<UserId>> GetCurrentUserId()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                ApplicationUser user = await _context.Users.Include(x => x.Usuario).SingleAsync(u => u.NormalizedUserName == User.Identity.Name.ToUpper());
+                int userid = user.Usuario.Idusuario;
+                return new UserId() { IdUsuario = userid };
+            }
+            return Unauthorized();
+        }
 
     }
 }

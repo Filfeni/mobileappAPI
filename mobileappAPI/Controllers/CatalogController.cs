@@ -26,7 +26,11 @@ namespace mobileappAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Post>>> GetCatalog()
         {
-            return await _context.Posts.ToListAsync();
+            int? userid = _context.Users.Include(x => x.Usuario)
+                                        .Single(u => u.NormalizedUserName == User.Identity.Name.ToUpper()).Usuario.Idusuario;
+            return await _context.Posts.Include(x => x.IdcarroNavigation)
+                                       .Where(x => x.IdcarroNavigation.Idpropietario != userid)
+                                       .ToListAsync();
         }
 
         // GET: api/Catalogo/5
@@ -44,27 +48,42 @@ namespace mobileappAPI.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<Post>>> SearchCatalog([FromQuery] string? search, [FromQuery] string? marca)
+        public async Task<ActionResult<IEnumerable<Post>>> SearchCatalog([FromQuery] string? search)
         {
-            if (search == null && marca == null)
+            int? userid = _context.Users.Include(x => x.Usuario)
+                                        .Single(u => u.NormalizedUserName == User.Identity.Name.ToUpper()).Usuario.Idusuario;
+            if (search == null)
                 return RedirectToAction("GetCatalog");
             
-            if (search == null && marca != null)
-            {
-                return await _context.Posts.Include(p => p.IdcarroNavigation)
-                .Where(c => c.IdcarroNavigation.IdmarcaNavigation.Marca1 == marca)?
-                .ToListAsync();
-            }
-            if (search != null && marca == null)
-            {
-                return await _context.Posts.Include(p => p.IdcarroNavigation)
-                .Where(c => c.IdcarroNavigation.Modelo.Contains(search) || c.IdcarroNavigation.IdmarcaNavigation.Marca1 == marca)
-                .ToListAsync();
-            }
-            return await _context.Posts.Include(p => p.IdcarroNavigation)
-                .Where(c => c.IdcarroNavigation.Modelo.Contains(search) || c.IdcarroNavigation.IdmarcaNavigation.Marca1 == marca)
+            
+            return await _context.Posts.Include(p => p.IdcarroNavigation).Include(p => p.IdcarroNavigation.IdmarcaNavigation)
+                .Where(c => (c.IdcarroNavigation.Modelo.Contains(search) || c.IdcarroNavigation.IdmarcaNavigation.Marca1.Contains(search) || c.Descripcion.Contains(search)) && c.IdcarroNavigation.Idpropietario != userid)
                 .ToListAsync();
         }
+        
+        //[HttpGet("search")]
+        //public async Task<ActionResult<IEnumerable<Post>>> SearchCatalog([FromQuery] string? search, [FromQuery] string? marca)
+        //{
+        //    int? userid = _context.Users.Include(x => x.Usuario).Single(u => u.NormalizedUserName == User.Identity.Name.ToUpper()).Usuario.Idusuario;
+        //    if (search == null && marca == null)
+        //        return RedirectToAction("GetCatalog");
+            
+        //    if (search == null && marca != null)
+        //    {
+        //        return await _context.Posts.Include(p => p.IdcarroNavigation)
+        //        .Where(c => c.IdcarroNavigation.IdmarcaNavigation.Marca1 == marca && c.IdcarroNavigation.Idpropietario != userid)?
+        //        .ToListAsync();
+        //    }
+        //    if (search != null && marca == null)
+        //    {
+        //        return await _context.Posts.Include(p => p.IdcarroNavigation)
+        //        .Where(c => (c.IdcarroNavigation.Modelo.Contains(search) || c.IdcarroNavigation.IdmarcaNavigation.Marca1 == marca) && c.IdcarroNavigation.Idpropietario != userid)
+        //        .ToListAsync();
+        //    }
+        //    return await _context.Posts.Include(p => p.IdcarroNavigation)
+        //        .Where(c => (c.IdcarroNavigation.Modelo.Contains(search) || c.IdcarroNavigation.IdmarcaNavigation.Marca1 == marca) && c.IdcarroNavigation.Idpropietario != userid)
+        //        .ToListAsync();
+        //}
 
         //[HttpGet("search")]
         //public async Task<ActionResult<IEnumerable<Post>>> AlternateSearchCatalog([FromQuery] string? search, [FromQuery] string? marca)

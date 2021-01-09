@@ -27,7 +27,9 @@ namespace mobileappAPI.Controllers
         {
             var userid = GetUserId();
 
-            var reservations = await _context.Reservacions.Where(x => x.Idcliente == userid).ToListAsync();
+            var reservations = await _context.Reservacions.Include(x => x.IdcarroNavigation)
+                                                          .Where(x => x.Idcliente == userid)
+                                                          .ToListAsync();
             if (reservations != null)
                 return reservations;
 
@@ -137,7 +139,7 @@ namespace mobileappAPI.Controllers
 
         public int? GetUserId()
         {
-            return _context.Users.Single(u => u.UserName == User.Identity.Name).Usuario.Idusuario;
+            return _context.Users.Include(x => x.Usuario).Single(u => u.NormalizedUserName == User.Identity.Name.ToUpper()).Usuario.Idusuario;
         }
 
         public IEnumerable<DateTime> EachCalendarDay(DateTime startDate, DateTime endDate)
