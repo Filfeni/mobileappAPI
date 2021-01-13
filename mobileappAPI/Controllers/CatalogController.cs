@@ -26,8 +26,8 @@ namespace mobileappAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Post>>> GetCatalog()
         {
-            int? userid = _context.Users.Include(x => x.Usuario)
-                                        .Single(u => u.NormalizedUserName == User.Identity.Name.ToUpper()).Usuario.Idusuario;
+            ApplicationUser user = await _context.Users.Include(x => x.Usuario).SingleAsync(u => u.NormalizedUserName == User.Identity.Name.ToUpper());
+            int userid = user.Usuario.Idusuario;
             return await _context.Posts.Include(x => x.IdcarroNavigation)
                                        .Where(x => x.IdcarroNavigation.Idpropietario != userid)
                                        .ToListAsync();
@@ -50,15 +50,17 @@ namespace mobileappAPI.Controllers
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<Post>>> SearchCatalog([FromQuery] string? search)
         {
-            int? userid = _context.Users.Include(x => x.Usuario)
-                                        .Single(u => u.NormalizedUserName == User.Identity.Name.ToUpper()).Usuario.Idusuario;
-            if (search == null)
-                return RedirectToAction("GetCatalog");
-            
-            
-            return await _context.Posts.Include(p => p.IdcarroNavigation).Include(p => p.IdcarroNavigation.IdmarcaNavigation)
-                .Where(c => (c.IdcarroNavigation.Modelo.Contains(search) || c.IdcarroNavigation.IdmarcaNavigation.Marca1.Contains(search) || c.Descripcion.Contains(search)) && c.IdcarroNavigation.Idpropietario != userid)
-                .ToListAsync();
+            ApplicationUser user = await _context.Users.Include(x => x.Usuario).SingleAsync(u => u.NormalizedUserName == User.Identity.Name.ToUpper());
+            int userid = user.Usuario.Idusuario;
+            if (string.IsNullOrEmpty(search))
+                return await _context.Posts.Include(x => x.IdcarroNavigation)
+                                           .Where(x => x.IdcarroNavigation.Idpropietario != userid)
+                                           .ToListAsync();
+
+            return await _context.Posts.Include(p => p.IdcarroNavigation)
+                                       .Include(p => p.IdcarroNavigation.IdmarcaNavigation)
+                                       .Where(c => (c.IdcarroNavigation.Modelo.Contains(search) || c.IdcarroNavigation.IdmarcaNavigation.Marca1.Contains(search) || c.Descripcion.Contains(search)) && c.IdcarroNavigation.Idpropietario != userid)
+                                       .ToListAsync();
         }
         
         //[HttpGet("search")]

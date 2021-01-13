@@ -102,12 +102,18 @@ namespace mobileappAPI.Controllers
         //To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Reservacion>> PostReservacion(Reservacion reservacion)
+        public async Task<ActionResult> PostReservacion(Reservacion reservacion)
         {
-            _context.Reservacions.Add(reservacion);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetReservacion", new { id = reservacion.Idreservacion }, reservacion);
+            try
+            {
+                _context.Reservacions.Add(reservacion);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                return BadRequest(new Response() { Status = "Error", Message = "This car could not be reserved successfully" });
+            }
+            return Ok(new Response() { Status = "Success", Message = "This car was successfully reserved" });
         }
 
         // DELETE: api/Reservations/5

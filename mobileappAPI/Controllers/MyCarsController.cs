@@ -202,7 +202,8 @@ namespace mobileappAPI.Controllers
                 return NotFound();
             
             var post = await _context.Posts.Include(x => x.IdcarroNavigation).SingleAsync(x => x.Idcarro == id);
-            int userid = _context.Users.Single(u => u.UserName == User.Identity.Name).Usuario.Idusuario;
+            ApplicationUser user = await _context.Users.Include(x => x.Usuario).SingleAsync(u => u.NormalizedUserName == User.Identity.Name.ToUpper());
+            int userid = user.Usuario.Idusuario;
 
             if (userid != post.IdcarroNavigation.Idpropietario)
                 return BadRequest();
@@ -217,7 +218,7 @@ namespace mobileappAPI.Controllers
             {
                 throw;
             }
-            return Ok(new Response { Status = "Succeded", Message = "This Car was deleted" });
+            return Ok(new Response { Status = "Succeded", Message = "This Post was deleted" });
 
         }
 
